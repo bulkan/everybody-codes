@@ -26,13 +26,17 @@ if __name__ == "__main__":
 
         result = NotesParsers.value.parse(content).unwrap()
 
-        d = 1
+        print(result.names)
+
+        c = 0
 
         for dir, amount in result.instructions:
             match dir:
                 case "L":
-                    dir = -1
+                    c = max(0, c - amount - 1)
                 case "R":
-                    dir = 1
+                    c = min(10, c + amount + 1)
 
-            print(amount * dir)
+            print(dir, amount, c)
+
+        print(result.names[c])

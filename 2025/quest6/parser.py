@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
 # knight_mentor = []
 #
 # iterate through swordests
@@ -5,7 +8,16 @@
 # when a is seen check if knight_mentor if there is a positio < a
 
 
-def parse(input: str) -> list[str]:
-    swordests = [c for c in input if c in "Aa"]
+@dataclass()
+class Professions:
+    fencers: list[str]
+    archers: list[str]
+    magicians: list[str]
 
-    return swordests
+
+def parse(input: str) -> Professions:
+    fencers = [c for c in input if c in "Aa"]
+    archers = [c for c in input if c in "Bb"]
+    magicians = [c for c in input if c in "Cc"]
+
+    return Professions(fencers, archers, magicians)

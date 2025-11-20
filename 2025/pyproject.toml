@@ -9,4 +9,5 @@ dependencies = []
 [dependency-groups]
 dev = [
     "parsita>=2.2.4",
+    "tqdm>=4.67.1",
 ]

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from parsita import ParserContext, repsep, reg
+from parsita import ParserContext, repsep, rep, reg
 
 
 @dataclass(frozen=True)
@@ -8,13 +8,14 @@ class Notes:
     rules: dict[str, set[str]]
 
 
-class NotesParsers(ParserContext, whitespace=r"[ ]*"):
-    names = repsep(reg(r"\w+"), ",")
+class NotesParsers(ParserContext, whitespace=r"[ \t]*"):
+    names = repsep(reg(r"\w+"), ",") << "\n" << "\n"
 
-    rule = reg(r".") & ">" >> repsep(reg(r".*"), ",")
-    rules = repsep(rule, "\n")
+    newline = reg(r"(\n)?")
+    rule = reg(r".") & ">" >> repsep(reg(r"."), ",") << newline
+    rules = rep(rule)
 
-    values = names << "\n" << "\n" & rules
+    values = names & rules
 
 
 def parse(input: str) -> Notes:

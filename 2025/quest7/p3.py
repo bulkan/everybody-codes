@@ -1,13 +1,6 @@
-from parser import parse
+import itertools
 from pprint import pp
-
-
-# for name in names
-# start from last letter in name
-#     if last_letter in rules append letter to name
-#         is name >= min_letters  and <= max_letters
-#               append to valid_names
-#         if name >= max_letters; break
+from parser import parse
 
 
 def solve(input: str) -> int:
@@ -18,33 +11,33 @@ def solve(input: str) -> int:
 
     rules = notes.rules
 
-    def recurser(name: str):
-        if len(name) == max_letters:
-            return {name}
+    valid_names = set()
 
-        last_letter = name[-1]
-        letters = rules.get(last_letter, None)
+    def check_prefix(prefix: str) -> bool:
+        return all(
+            [l in rules and r in rules[l] for l, r in itertools.pairwise(prefix)]  # noqa: E741
+        )
 
-        if letters is None:
-            return {name}
+    def visit(current: str) -> None:
+        if min_letters <= len(current) <= max_letters:
+            valid_names.add(current)
 
-        new_names = [name + c for c in letters]
-        return set.union({name}, *[recurser(n) for n in new_names])
+        if len(current) > max_letters:
+            return
 
-    res = set()
-    for _, name in enumerate(notes.names, 1):
-        if name[-1] not in rules:
-            continue
+        last_letter = current[-1]
+        if last_letter not in rules:
+            return
 
-        for i in range(len(name) - 1):
-            if name[i + 1] not in rules.get(name[i], set()):
-                break
-        else:
-            res = res.union(recurser(name))
+        for v in rules[last_letter]:
+            visit(current + v)
 
-    res = len([r for r in res if len(r) >= min_letters])
-    pp(res)
-    return res
+    for name in notes.names:
+        if check_prefix(name):
+            visit(name)
+
+    pp(len(valid_names))
+    return len(valid_names)
 
 
 def test1():

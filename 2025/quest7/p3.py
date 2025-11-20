@@ -1,5 +1,3 @@
-import itertools
-import pprint
 from parser import parse
 from pprint import pp
 
@@ -13,44 +11,40 @@ from pprint import pp
 
 
 def solve(input: str) -> int:
-    min_letter = 7
+    min_letters = 7
     max_letters = 11
 
     notes = parse(input)
 
     rules = notes.rules
-    # pp(rules)
 
-    valid_names: list[str] = []
-    for index, name in enumerate(notes.names, 1):
+    def recurser(name: str):
+        if len(name) == max_letters:
+            return {name}
+
+        last_letter = name[-1]
+        letters = rules.get(last_letter, None)
+
+        if letters is None:
+            return {name}
+
+        new_names = [name + c for c in letters]
+        return set.union({name}, *[recurser(n) for n in new_names])
+
+    res = set()
+    for _, name in enumerate(notes.names, 1):
         if name[-1] not in rules:
             continue
 
-        letters_to_check = list(rules[name[-1]])
-        # seen_letters = set()
+        for i in range(len(name) - 1):
+            if name[i + 1] not in rules.get(name[i], set()):
+                break
+        else:
+            res = res.union(recurser(name))
 
-        new_name = name
-
-        while len(letters_to_check):
-            ll = letters_to_check.pop()
-
-            # if ll in seen_letters:
-            #     continue
-
-            if ll in rules:
-                letters_to_check.extend(list(rules[ll]))
-
-                new_name += ll
-
-                new_length = len(new_name)
-
-                if new_length >= min_letter and new_length <= max_letters:
-                    pp(new_name)
-                    valid_names.append(new_name)
-
-            # seen_letters.add(ll)
-    pp(valid_names)
-    return len(valid_names)
+    res = len([r for r in res if len(r) >= min_letters])
+    pp(res)
+    return res
 
 
 def test1():
@@ -74,7 +68,7 @@ def p3():
 
 def main():
     test1()
-    # p3()
+    p3()
 
 
 if __name__ == "__main__":
